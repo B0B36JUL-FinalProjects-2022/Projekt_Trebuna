@@ -1,0 +1,7 @@
+name = "KeypointsDetection"
+uuid = "133bbfb0-fa27-4137-941e-e0e85764464b"
+authors = ["Frantisek Trebuna"]
+version = "0.1.0"
+
+[compat]
+julia = "1.8"
