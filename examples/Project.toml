@@ -1,0 +1,4 @@
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+KeypointsDetection = "133bbfb0-fa27-4137-941e-e0e85764464b"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
