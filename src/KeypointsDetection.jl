@@ -2,6 +2,7 @@ module KeypointsDetection
 
 include("LoadDataset.jl")
 include("TrainNet.jl")
+include("ImageUtils.jl")
 
 import GLMakie
 import VideoIO
