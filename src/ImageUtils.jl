@@ -50,3 +50,13 @@ function show_image(dataset::DataFrame, index::Integer)
     plot_keypoints(dataset, index)
     plt
 end
+
+function show_image_augmented(datasets, names, index::Integer)
+    plots = []
+    for (dataset, name) in zip(datasets, names)
+        plt = show_image(dataset, index)
+        title!(plt, name)
+        push!(plots, plt)
+    end
+    plot(plots..., legend=false)
+end

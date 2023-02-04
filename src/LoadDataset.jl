@@ -27,7 +27,7 @@ function load_train_dataframe(path::String=joinpath("data", "training.csv"))
             string_to_matrix(str_image)' ./ 255
         )
     ) => :Image)
-    dataframe
+    dropmissing(dataframe)
 end
 
 function create_predict_dataset(dataframe::DataFrame)
