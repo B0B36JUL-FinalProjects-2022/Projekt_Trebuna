@@ -59,7 +59,10 @@ function rotateImage(img, radians)
     ))[1:96, 1:96])
 end
 
+remove_border_values(r) = (!ismissing(r) && r <= 91 && r >= 5) ? r : missing
+
 function rotation(dataframe::DataFrame, radians::Float64)
+    allowmissing!(dataframe)
     colNames = names(dataframe)
     df = DataFrame(dataframe)
     
@@ -76,8 +79,9 @@ function rotation(dataframe::DataFrame, radians::Float64)
             rotated_vector = matrix * vector
             rotated_vector = rotated_vector .+ 48
             
-            df[c, colNames[i]] = rotated_vector[1]
-            df[c, colNames[i + 1]] = rotated_vector[2]
+            a = remove_border_values(rotated_vector[2])
+            df[c, colNames[i]] = remove_border_values(rotated_vector[1])
+            df[c, colNames[i + 1]] = remove_border_values(rotated_vector[2])
         end
     end
 

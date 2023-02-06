@@ -1,4 +1,4 @@
-function plot_keypoints(dataset::DataFrame, index)
+function plot_keypoints(dataset::DataFrame, index; suffix="")
     eye_group = [
         "eye_inner_corner",
         "eye_center",
@@ -37,17 +37,23 @@ function plot_keypoints(dataset::DataFrame, index)
                 dataset[index, prefix * dim] for prefix in group
             ])
         end
-        plot!(x, y, m=:o, label=name)
+        if (length(collect(skipmissing(x))) == 0) || (length(collect(skipmissing(y))) == 0)
+            continue
+        end
+        plot!(x, y, m=:o, label=name * suffix)
     end
 end
 
 """
 Show the image and important keypoints.
 """
-function show_image(dataset::DataFrame, index::Integer)
+function show_image(dataset::DataFrame, index::Integer; goldDataset=nothing)
     image = dataset[index, :Image]
     plt = plot(image)
     plot_keypoints(dataset, index)
+    if !isnothing(goldDataset)
+        plot_keypoints(goldDataset, dataset[index, :TrueIndex]; suffix="_Gold")
+    end
     gui(plt)
 end
 
