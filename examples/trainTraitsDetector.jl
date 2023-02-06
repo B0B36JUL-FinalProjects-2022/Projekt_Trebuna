@@ -14,7 +14,7 @@ net = KeypointsDetection.define_net_lenet_dropout(;n_outputs=length(needed_colum
 train_losses_steps, valid_losses = KeypointsDetection.train_gpu_net!(net, X, y;
     n_epochs=100,
     patience=5,
-    filename="traits_model.bson"
+    filename="examples/models/traits_model.bson"
 );
 KeypointsDetection.plot_losses(train_losses_steps, valid_losses)
 end
