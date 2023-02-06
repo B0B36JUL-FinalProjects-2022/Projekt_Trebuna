@@ -16,28 +16,33 @@ end
 function define_net_simple_feedforward()
     net = Chain(
         flatten,
-        Dense(96 * 96, 100),
-        relu,
+        Dense(96 * 96, 100, relu),
         Dense(100, 30),
     )
     NetHolder(net)
 end
 
-function train_gpu_net!(net::NetHolder, X, y; keywordArgs...)
-    gpu_X, gpu_y = X |> gpu, y |> gpu
-    gpu_net = NetHolder(net.model |> gpu)
-    res = train_net!(gpu_net, gpu_X, gpu_y; keywordArgs...)
-    net.model = gpu_net.model |> cpu
-    res
+function define_net_lenet()
+    net = Chain(
+        Conv((5,5), 1=>6, relu, pad=SamePad()),
+        MeanPool((2,2)),
+        Conv((5,5), 6=>16, relu, pad=SamePad()),
+        MeanPool((2,2)),
+        flatten,
+        Dense(9216, 120, relu),
+        Dense(120, 84, relu),
+        Dense(84, 30)
+    )
+    NetHolder(net)
 end
 
 function train_valid_split(X::AbstractArray, y::AbstractArray; valid_size)
-    ixes = randperm(size(X)[3])
+    ixes = randperm(size(X)[4])
     last_train_ix = floor(Int, length(ixes) * (1 - valid_size))
     train_ixes = ixes[1:last_train_ix]
     valid_ixes = ixes[last_train_ix + 1:end]
 
-    X[:, :, train_ixes], y[:, train_ixes], X[:, :, valid_ixes], y[:, valid_ixes]
+    X[:, :, :, train_ixes], y[:, train_ixes], X[:, :, :, valid_ixes], y[:, valid_ixes]
 end
 
 function train_one_batch!(model, batch, train_losses_steps, opt_state, loss_fn)
@@ -68,7 +73,6 @@ denormalize(preds) = (preds .* 48) .+ 48
 
 function predict_to_dataframe(net::NetHolder, X::AbstractArray, dataframe::DataFrame)
     preds = predict(net, X)
-    preds = denormalize(preds)
     df = DataFrame()
     for (i, name) in enumerate(names(dataframe))
         if name == "Image"
@@ -82,18 +86,19 @@ end
 
 function predict(net::NetHolder, X::AbstractArray{Float32, 2})
     denormalize(
-        net.model(reshape(X, (96, 96, 1)))
+        net.model(reshape(X, (96, 96, 1, 1)))
     )
 end
 
 BATCH_SIZE=128
-function predict(net::NetHolder, X::AbstractArray{Float32, 3})
+function predict(net::NetHolder, X::AbstractArray{Float32, 4})
     if size(X)[end] > BATCH_SIZE
         batches = DataLoader((X,); batchsize=BATCH_SIZE, shuffle=false)
-        predict_batches(net.model, batches)
+        preds = predict_batches(net.model, batches)
     else
-        net.model(X)
+        preds = net.model(X)
     end
+    denormalize(preds)
 end
 
 function predict_batches(model, batches)
@@ -125,6 +130,14 @@ function measure_time(method)
     method()
     e = time()
     e - s
+end
+
+function train_gpu_net!(net::NetHolder, X, y; keywordArgs...)
+    gpu_X, gpu_y = X |> gpu, y |> gpu
+    gpu_net = NetHolder(net.model |> gpu)
+    res = train_net!(gpu_net, gpu_X, gpu_y; keywordArgs...)
+    net.model = gpu_net.model |> cpu
+    res
 end
 
 """
@@ -168,7 +181,7 @@ function train_net!(net::NetHolder, X, y;
     train_losses_steps, valid_losses
 end
 
-function plot_losses(train_losses_steps, valid_losses)
+function plot_losses(train_losses_steps, valid_losses, ylims_param=(1e-3, 1e-2))
     tr_len = length(train_losses_steps)
     val_len = length(valid_losses)
     epoch_steps = floor(Int, tr_len / val_len)
@@ -181,5 +194,5 @@ function plot_losses(train_losses_steps, valid_losses)
     plot!(rollmean(valid_losses, epoch_steps * 3), color=:red, label="Validation Loss (smoothed)")
     xlabel!("Train Steps")
     ylabel!("Loss")
-    ylims!((1e-3, 1e-2))
+    ylims!(ylims_param)
 end

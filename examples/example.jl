@@ -26,10 +26,12 @@ KeypointsDetection.show_image_augmented(
 )
 
 
-X, y = KeypointsDetection.create_train_dataset_full(trainDataframe);
+# training of the net
+augmentedDataframe = KeypointsDetection.augmentDataframe(trainDataframe)
+X, y = KeypointsDetection.create_train_dataset_full(augmentedDataframe);
 
 
-net = KeypointsDetection.define_net_simple_feedforward()
+net = KeypointsDetection.define_net_lenet()
 train_losses_steps, valid_losses = KeypointsDetection.train_gpu_net!(net, X, y);
 KeypointsDetection.plot_losses(train_losses_steps, valid_losses)
 predictedDataframe = KeypointsDetection.predict_to_dataframe(net, trainDataframe);

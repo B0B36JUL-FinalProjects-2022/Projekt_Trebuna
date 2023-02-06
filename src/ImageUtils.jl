@@ -48,7 +48,7 @@ function show_image(dataset::DataFrame, index::Integer)
     image = dataset[index, :Image]
     plt = plot(image)
     plot_keypoints(dataset, index)
-    plt
+    gui(plt)
 end
 
 function show_image_augmented(datasets, names, index::Integer)

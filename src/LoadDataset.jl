@@ -36,8 +36,8 @@ function create_predict_dataset(dataframe::DataFrame)
         :Image => ByRow((image) -> reshape(Float32.(image), 96*96)) => :Image
     )[:, :Image]
     X = reduce(hcat, X)'
-    X = reshape(X, (size(X)[1], 96, 96))
-    X = permutedims(X, (2, 3, 1))
+    X = reshape(X, (size(X)[1], 96, 96, 1))
+    X = permutedims(X, (2, 3, 4, 1))
 end
 
 
