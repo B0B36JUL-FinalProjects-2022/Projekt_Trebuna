@@ -21,37 +21,44 @@ end
 
 function play_webcam(model)
     cam = VideoIO.opencamera()
-    fps = VideoIO.framerate(cam)
     try
         img = read(cam)
         yolo_struct = prepare_yolo_structs(img, model)
         boxes = predict_bounding_box(img, model, yolo_struct)
-
+        
         # --- observables can be interactively updated ---
-
+        
         # create observable image for the input from the web-cam
         obs_img = GLMakie.Observable(GLMakie.rotr90(img))
-
+        
         # create observable plot for the BoundingBox
         obs_plot = GLMakie.Observable(boxes)
-
+        
         # ---
-
+        
         # --- create a scene where everything is going to be displayed
-        resolution = reverse(size(img))
-        scene = GLMakie.Scene(camera=GLMakie.campixel!, resolution=resolution)
+        scene = GLMakie.Scene()
         
         # plot an image into the scene
+        # GLMakie.Figure(; resolution=resolution)
         GLMakie.image!(scene, obs_img)
-        GLMakie.poly!(scene, obs_plot)
-      
+        GLMakie.poly!(
+            scene,
+            obs_plot,
+            color=:transparent,
+            strokecolor=:red,
+            strokewidth=2,
+            overdraw=true
+        )
+            
         display(scene)
-        
+        fps = VideoIO.framerate(cam)
         while GLMakie.isopen(scene)
           img = read(cam)
           obs_plot[] = predict_bounding_box(img, model, yolo_struct)
           obs_img[] = GLMakie.rotr90(img)
           sleep(1 / fps)
+
         end
     finally
         close(cam)
