@@ -19,12 +19,13 @@ function play_test_video()
     VideoIO.playvideo(f)
 end
 
-function play_webcam(model)
+function play_webcam(model::YOLO.yolo, net::NetHolder)
     cam = VideoIO.opencamera()
     try
         img = read(cam)
         yolo_struct = prepare_yolo_structs(img, model)
-        boxes = predict_bounding_box(img, model, yolo_struct)
+        boxes, im = predict_bounding_box(img, model, yolo_struct)
+        predict_from_bb(net, im, boxes)
         
         # --- observables can be interactively updated ---
         
@@ -55,7 +56,9 @@ function play_webcam(model)
         fps = VideoIO.framerate(cam)
         while GLMakie.isopen(scene)
           img = read(cam)
-          obs_plot[] = predict_bounding_box(img, model, yolo_struct)
+          boxes, im = predict_bounding_box(img, model, yolo_struct)
+          predict_from_bb(net, im, boxes)
+          obs_plot[] = boxes
           obs_img[] = GLMakie.rotr90(img)
           sleep(1 / fps)
 
@@ -63,11 +66,6 @@ function play_webcam(model)
     finally
         close(cam)
     end
-end
-
-# Write your package code here.
-function something_better()
-    println("better")
 end
 
 end

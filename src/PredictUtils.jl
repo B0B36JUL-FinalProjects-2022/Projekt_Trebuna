@@ -1,3 +1,42 @@
+# https://www.dynamsoft.com/blog/insights/image-processing/image-processing-101-color-space-conversion/
+function to_grayscale(img)
+    reshape(
+        (0.299 .* img[:, :, 1]) .+ (img[:, :, 2] .* 0.587) .+ (img[:, :, 3] .* 0.114),
+        (size(img, 1), size(img, 2), 1, 1)
+    )
+end
+
+function predict_from_bb(net::NetHolder, img, boundingboxes::AbstractArray{GeometryBasics.Polygon})
+    img = to_grayscale(img)
+    model = Chain([Flux.AdaptiveMeanPool((96, 96))])
+
+    for bb in boundingboxes[2:end]
+        points_x = []
+        points_y = []
+        for line in bb.exterior.points
+            push!(points_x, line.points[1][1])
+            push!(points_y, line.points[1][2])
+        end
+        min_x = Int32(minimum(points_x))
+        max_x = Int32(maximum(points_x))
+        min_y = Int32(minimum(points_y))
+        max_y = Int32(maximum(points_y))
+
+        img2 = img[min_x:max_x, min_y:max_y, :, :]
+        @show size(img2)
+        if size(img2, 1) >= 96 && size(img2, 2) >= 96
+            img2 = model(img2)
+        elseif size(img2, 1) > 96
+            #NNLib pad_constant
+            @info "Not yet implemented!"
+        end
+
+        
+        @show size(img2)
+    end
+
+end
+
 function predict(net::NetHolder, X::AbstractArray{Float32, 2}; withgpu=false)
     Flux.testmode!(net.model)
     denormalize(

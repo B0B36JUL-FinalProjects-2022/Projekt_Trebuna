@@ -61,11 +61,6 @@ function predict_bounding_box(image, model, s::DrawStruct;
     overlapThresh=0.8
 )
     im, pad = prepareImage(image, model)
-    # im2 = im |> cpu
-    # im_color = reshape(
-    #     [RGB(im2[i, j, :]...) for i in range(1, size(im2, 1)) for j in range(1, size(im2, 2))],
-    #     (size(im2, 1), size(im2, 2))
-    # )
     batch = emptybatch(model)
     batch[:, :, :, 1] = im
     res = model(
@@ -73,5 +68,5 @@ function predict_bounding_box(image, model, s::DrawStruct;
         detectThresh=detectThresh,
         overlapThresh=overlapThresh
     )
-    create_bounding_box(res, pad, s)
+    create_bounding_box(res, pad, s), im
 end
