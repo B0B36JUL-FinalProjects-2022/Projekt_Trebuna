@@ -1,7 +1,7 @@
 using .DataFrames
 using .Plots
 
-function plot_keypoints(dataset::DataFrame, index::Int32; suffix::String="")
+function plot_keypoints(dataset::DataFrame, index::Integer; suffix::String="")
     eye_group = [
         "eye_inner_corner",
         "eye_center",
@@ -50,7 +50,14 @@ end
 """
 Show the image and important keypoints.
 """
-function show_image(dataset::DataFrame, index::Integer; goldDataset::DataFrame=nothing)
+function show_image(dataset::DataFrame, index::Integer)
+    image = dataset[index, :Image]
+    plt = plot(image)
+    plot_keypoints(dataset, index)
+    gui(plt)
+end
+
+function show_image_with_gold(dataset::DataFrame, index::Integer; goldDataset::DataFrame=nothing)
     image = dataset[index, :Image]
     plt = plot(image)
     plot_keypoints(dataset, index)
@@ -92,5 +99,6 @@ function plot_losses(train_losses_steps, valid_losses, ylims_param=(1e-3, 1e-2))
 end
 
 function plot_errors(sortedDataframe::DataFrame)
-    plot(sortedDataframe[!, :Error], title="Errors on Individual Samples", xlabel="Sample ID", ylabel="Error")
+    plt = plot(sortedDataframe[!, :Error], title="Errors on Individual Samples", xlabel="Sample ID", ylabel="Error")
+    gui(plt)
 end

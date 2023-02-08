@@ -1,5 +1,6 @@
 using .ObjectDetector
 using GeometryBasics
+using Images
 
 function load_yolo_model(;model_dir::String="data")
     model = YOLO.yolo(
@@ -9,34 +10,24 @@ function load_yolo_model(;model_dir::String="data")
 end
 
 struct DrawStruct
-    h::Float32
-    w::Float32
-    x1i::Int32
-    y1i::Int32
-    x2i::Int32
-    y2i::Int32
-    modelratio::Float32
-    imgratio::Float32
+    im_h::Float32
+    im_w::Float32
+    m_h::Float32
+    m_w::Float32
 end
 
 function prepare_yolo_structs(img, model; transpose=true)
-    h, w = ObjectDetector.getModelInputSize(model)
-    h = size(img, 1)
-    w = size(img, 2)
-    modelratio, imgratio = 1, 1
-    x1i, y1i, x2i, y2i = [1, 2, 3, 4]
+    m_h, m_w = ObjectDetector.getModelInputSize(model)
+    im_h = size(img, 1)
+    im_w = size(img, 2)
 
-    DrawStruct(h, w, x1i, y1i, x2i, y2i, modelratio, imgratio)
+    DrawStruct(im_h, im_w, m_h, m_w)
 end
 
 unpack(s::DrawStruct) = s.h, s.w, s.x1i, s.y1i, s.x2i, s.y2i, s.modelratio, s.imgratio
 
 function init_dummy_bb(h, w)
-    GeometryBasics.Polygon[
-        GeometryBasics.Polygon(Point{2, Float32}.(
-            [(0, 0), (w, 0), (w, h), (0, h), (0, 0)])
-        )
-    ]
+    [[(0, 0), (w, 0), (w, h), (0, h), (0, 0)]]
 end
 
 function create_bounding_box(results, padding, s::DrawStruct)
@@ -50,25 +41,43 @@ function create_bounding_box(results, padding, s::DrawStruct)
         p3 = (round(Int, bbox[x1i]*w)+1, round(Int, h - (bbox[y2i] + padding[4] / 2)*h))
         p4 = (round(Int, bbox[x2i]*w), round(Int, h - (bbox[y2i] + padding[4] / 2)*h))
         push!(boxes,
-                GeometryBasics.Polygon(Point{2, Float32}.([p1, p2, p4, p3, p1]))
+            GeometryBasics.Polygon(Point{2, Float32}.([p1, p2, p4, p3, p1]))
         )
     end
     boxes
 end
 
+function res_to_bounding_box(results::Vector{Float32}, h::Float32, w::Float32)
+    bbox = results[1:4]
+    p1 = (round(Int, bbox[1] * w) + 1,  round(Int, bbox[2] * h) + 1)
+    p2 = (round(Int, bbox[3] * w),      round(Int, bbox[2] * h) + 1)
+    p3 = (round(Int, bbox[3] * w),      round(Int, bbox[4] * h))
+    p4 = (round(Int, bbox[1] * w) + 1,  round(Int, bbox[4] * h))
+    return [p1, p2, p3, p4, p1]
+end
+
+function res_to_bounding_box(results::Vector{Float32}, h::Float32, w::Float32, padding::AbstractArray{Float64})    
+    bbox = results[1:4] .- padding
+    h *= (w / h)
+    p1 = (round(Int, bbox[1] * w) + 1,  round(Int, bbox[2] * h) + 1)
+    p2 = (round(Int, bbox[3] * w),      round(Int, bbox[2] * h) + 1)
+    p3 = (round(Int, bbox[3] * w),      round(Int, bbox[4] * h))
+    p4 = (round(Int, bbox[1] * w) + 1,  round(Int, bbox[4] * h))
+    return [p1, p2, p3, p4, p1]
+end
+
+function channels_to_rgb(im)
+    im_rgb_unwinded = [RGB(im[i, j, :]...) for j in range(1, size(im, 2)) for i in range(1, size(im, 1))]
+    im_rgb = reshape(im_rgb_unwinded, size(im, 1), size(im, 2))'
+end
+
 function get_prepared_image(image, model)
     im, pad = prepareImage(image, model)
     im = im |> cpu
-
-
-    im_rgb_unwinded = [RGB(im[i, j, :]...) for i in range(1, size(im, 1)) for j in range(1, size(im, 2))]
-    im_rgb = reshape(im_rgb_unwinded, size(im, 1), size(im, 2))
+    channels_to_rgb(im)
 end
 
-function predict_bounding_box(image, model, s::DrawStruct;
-    detectThresh=0.5,
-    overlapThresh=0.8
-)
+function yolo_predict(image, model; detectThresh=0.5, overlapThresh=0.8)
     im, pad = prepareImage(image, model)
     batch = emptybatch(model)
     batch[:, :, :, 1] = im
@@ -77,5 +86,18 @@ function predict_bounding_box(image, model, s::DrawStruct;
         detectThresh=detectThresh,
         overlapThresh=overlapThresh
     )
-    create_bounding_box(res, pad, s), im
+    res, pad, im
+end
+
+function predict_bounding_box(image, model, s::DrawStruct;
+    detectThresh=0.5,
+    overlapThresh=0.8
+)
+    boxes = init_dummy_bb(s.im_h, s.im_w)
+    res, pad, im = yolo_predict(image, model; detectThresh, overlapThresh)
+    for i in range(1, size(res, 2))  
+        box = KeypointsDetection.res_to_bounding_box(res[:, i], s.im_h, s.im_w, pad)
+        push!(boxes, box)
+    end
+    boxes
 end

@@ -1,12 +1,65 @@
 using GeometryBasics
-using .DataFrames
+using NNlib
 
 # https://www.dynamsoft.com/blog/insights/image-processing/image-processing-101-color-space-conversion/
 function to_grayscale(img)
+    img = permutedims(channelview(img), (3, 2, 1))
     reshape(
-        (0.299 .* img[:, :, 1]) .+ (img[:, :, 2] .* 0.587) .+ (img[:, :, 3] .* 0.114),
+        2 .* ( (1/3 .* img[:, :, 1]) .+ (img[:, :, 2] .* 1/3) .+ (img[:, :, 3] .* 1/3) ),
         (size(img, 1), size(img, 2), 1, 1)
     )
+end
+
+function crop_out_face(img, boundingbox::Vector{Tuple{Int64, Int64}})
+    crop_out_face(img, GeometryBasics.Polygon(Point{2, Float32}.(boundingbox)))
+end
+
+function crop_out_face(img_orig, boundingbox::GeometryBasics.Polygon)
+    points_x = []
+    points_y = []
+    for line in boundingbox.exterior.points
+        push!(points_x, line.points[1][1])
+        push!(points_y, line.points[1][2])
+    end
+    min_x = Int32(minimum(points_x))
+    max_x = Int32(maximum(points_x))
+    min_y = Int32(minimum(points_y))
+    max_y = Int32(maximum(points_y))
+
+    img = img_orig[min_x:max_x, min_y:max_y]
+    if size(img, 1) >= size(img, 2)
+        if size(img, 1) > 96
+            ratio = size(img, 2) / size(img, 1)
+            img = imresize(img, 96, floor(Int64, 96 * ratio))
+        end
+    elseif size(img, 1) < size(img, 2)
+        if size(img, 2) > 96
+            ratio = size(img, 1) / size(img, 2)
+            img = imresize(img, floor(Int64, 96 * ratio), 96)
+        end
+    end
+    if size(img, 1) < 96 && size(img,2) < 96
+        p1 = 96 - size(img, 1)
+        p2 = 96 - size(img, 2)
+        p11 = Int(floor(p1 / 2))
+        p12 = Int(p1 - p11)
+        p21 = Int(floor(p2 / 2))
+        p22 = Int(p2 - p22)
+        img = NNlib.pad_constant(img, (p11, p12, p21, p22), 0, dims=(1, 2))
+    else
+        if size(img, 1) < 96
+            p1 = 96 - size(img, 1)
+            p11 = Int(floor(p1 / 2))
+            p12 = Int(p1 - p11)
+            img = NNlib.pad_constant(img, (p11, p12, 0, 0), 0, dims=(1, 2))
+        elseif size(img, 2) < 96
+            p2 = 96 - size(img, 2)
+            p21 = Int(floor(p2 / 2))
+            p22 = Int(p2 - p21)
+            img = NNlib.pad_constant(img, (0, 0, p21, p22), 0, dims=(1, 2))
+        end
+    end
+    convert(Matrix{Float32}, img)
 end
 
 function predict_from_bb(net::NetHolder, img, boundingboxes::AbstractArray{GeometryBasics.Polygon})
@@ -45,8 +98,10 @@ end
 
 function predict(net::NetHolder, X::AbstractArray{Float32, 2}; withgpu=false)
     Flux.testmode!(net.model)
+    X = withgpu ? X |> gpu : X
+    model = withgpu ? net.model |> gpu : net.model
     denormalize(
-        net.model(reshape(X, (96, 96, 1, 1)))
+        model(reshape(X, (96, 96, 1, 1)))
     )
 end
 
@@ -88,30 +143,3 @@ function predict_batches(model, batches, withgpu)
 end
 
 denormalize(preds) = (preds .* 48) .+ 48
-
-function predict_to_dataframe(net::NetHolder, dataframe::DataFrame; needed_columns=names(dataframe), withgpu=false)
-    X = create_predict_dataset(dataframe)
-    if !("Image" in needed_columns)
-        push!(needed_columns, "Image")
-    end 
-    predict_to_dataframe(net, X, dataframe, needed_columns, withgpu)
-end
-
-function predict_to_dataframe(net::NetHolder, X::AbstractArray, dataframe::DataFrame, needed_columns, withgpu)
-    preds = predict(net, X; withgpu)
-    df = DataFrame()
-    i = 1
-    for name in names(dataframe)
-        if name == "Image"
-            df[!, name] = dataframe[!, name]
-            break
-        end
-        if name in needed_columns
-            df[!, name] = preds[i, :]
-            i += 1
-        else
-            df[!, name] = [missing for _ in range(1, size(preds)[2])]
-        end
-    end
-    df
-end

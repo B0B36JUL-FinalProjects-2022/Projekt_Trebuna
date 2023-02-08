@@ -2,7 +2,7 @@
 
 julia_version = "1.8.3"
 manifest_format = "2.0"
-project_hash = "e9c4bef621539c60db2003bd2d1a1598dd6a8bcb"
+project_hash = "0d5758c58b242f90007663fad864f67cd2dad656"
 
 [[deps.ATK_jll]]
 deps = ["Artifacts", "Glib_jll", "JLLWrappers", "Libdl", "Pkg"]
@@ -1017,7 +1017,7 @@ uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 version = "0.6.5"
 
 [[deps.KeypointsDetection]]
-deps = ["BSON", "CSV", "CUDA", "CoordinateTransformations", "DataFrames", "FileIO", "Flux", "GLMakie", "GeometryBasics", "ImageIO", "ImageShow", "ImageTransformations", "ImageView", "Images", "Makie", "NNlib", "NNlibCUDA", "ObjectDetector", "Random", "Requires", "RollingFunctions", "Rotations", "Statistics", "VideoIO"]
+deps = ["BSON", "CSV", "CUDA", "CoordinateTransformations", "FileIO", "Flux", "GeometryBasics", "ImageIO", "ImageShow", "ImageTransformations", "ImageView", "Images", "Makie", "NNlib", "NNlibCUDA", "Random", "Requires", "RollingFunctions", "Rotations", "Statistics"]
 path = ".."
 uuid = "133bbfb0-fa27-4137-941e-e0e85764464b"
 version = "0.1.0"

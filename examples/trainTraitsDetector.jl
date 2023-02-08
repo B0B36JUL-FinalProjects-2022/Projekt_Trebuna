@@ -1,5 +1,7 @@
 module NoseDetectorExample
 using KeypointsDetection
+using DataFrames
+using Plots
 
 @info "Loading Train Dataframe"
 trainDataframe = KeypointsDetection.load_train_dataframe();

@@ -19,7 +19,7 @@ end
 
 function define_net_simple_feedforward(;n_outputs=30)
     net = Chain(
-        flatten,
+        Flux.flatten,
         Dense(96 * 96, 100, relu),
         Dense(100, n_outputs),
     )
@@ -32,7 +32,7 @@ function define_net_lenet(;n_outputs=30)
         MeanPool((2,2)),
         Conv((5,5), 6=>16, relu, pad=SamePad()),
         MeanPool((2,2)),
-        flatten,
+        Flux.flatten,
         Dense(9216, 120, relu),
         Dense(120, 84, relu),
         Dense(84, n_outputs)
@@ -48,7 +48,7 @@ function define_net_lenet_dropout(;dropout_rate=0.5, n_outputs=30)
         Conv((5,5), 6=>16, relu, pad=SamePad()),
         MeanPool((2,2)),
         Dropout(dropout_rate),
-        flatten,
+        Flux.flatten,
         Dense(9216, 120, relu),
         Dropout(dropout_rate),
         Dense(120, 84, relu),

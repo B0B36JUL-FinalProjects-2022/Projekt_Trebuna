@@ -2,6 +2,9 @@ module Webcam
 
 using Revise
 using KeypointsDetection
+using GLMakie
+using VideoIO
+using ObjectDetector
 
 # load facial-keypoints net
 model_path="examples/models/traits_model.bson"
@@ -14,6 +17,5 @@ model = KeypointsDetection.load_yolo_model()
 
 # start webcam
 KeypointsDetection.play_webcam(model, net)
-
 
 end

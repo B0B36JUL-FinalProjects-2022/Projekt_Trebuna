@@ -1,5 +1,7 @@
 module TraitsDetectorPerformance
 using KeypointsDetection
+using DataFrames
+using Plots
 
 @info "Loading Dataset"
 trainDataframe = KeypointsDetection.load_train_dataframe();
@@ -21,15 +23,15 @@ readline()
 sortedDataframe = KeypointsDetection.sort_by_error(predictedDataframe, augmentedDataframe)
 
 # the worst
-KeypointsDetection.show_image(sortedDataframe, 28185; goldDataset=augmentedDataframe)
+KeypointsDetection.show_image_with_gold(sortedDataframe, 28185; goldDataset=augmentedDataframe)
 readline()
 
 # the best
-KeypointsDetection.show_image(sortedDataframe, 100; goldDataset=augmentedDataframe)
+KeypointsDetection.show_image_with_gold(sortedDataframe, 100; goldDataset=augmentedDataframe)
 readline()
 
 # the average
-KeypointsDetection.show_image(sortedDataframe, 10000; goldDataset=augmentedDataframe)
+KeypointsDetection.show_image_with_gold(sortedDataframe, 10000; goldDataset=augmentedDataframe)
 readline()
 
 KeypointsDetection.plot_errors(sortedDataframe)
