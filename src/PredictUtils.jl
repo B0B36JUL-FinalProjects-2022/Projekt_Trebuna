@@ -40,15 +40,15 @@ function crop_out_face(img_orig, boundingbox::GeometryBasics.Polygon)
     if size(img, 1) >= size(img, 2)
         if size(img, 1) > 96
             new_width=96
-            ratio = size(img, 2) / size(img, 1)
-            new_height=floor(Int64, 96 * ratio)
+            ratio = 96 / size(img, 1)
+            new_height=floor(Int64, size(img, 2) * ratio)
             img = imresize(img, new_width, new_height)
         end
     elseif size(img, 1) < size(img, 2)
         if size(img, 2) > 96
-            ratio = size(img, 1) / size(img, 2)
+            ratio = 96 / size(img, 2)
             new_height=96
-            new_width=floor(Int64, 96 * ratio)
+            new_width=floor(Int64, size(img, 1) * ratio)
             img = imresize(img, new_width, new_height)
         end
     end
@@ -81,9 +81,9 @@ end
 function preds_to_full(preds, old_x, old_y, ratio, p11, p21)
     new_preds = []
     for p in preds
-        x = p[1]# + p11
-        y = p[2]# + p21
-        push!(new_preds, (old_x + x / ratio, old_y + y / ratio))
+        x = p[1] - p11
+        y = p[2] - p21
+        push!(new_preds, (x / ratio + old_x, y / ratio + old_y))
     end
     new_preds
 end
