@@ -1,5 +1,11 @@
 # KeypointsDetection
 
+The main aim of this project is to try to play with `VideoIO`, `GLMakie`, and `ObjectDetector`. I chose the dataset for [Facial Keypoints Detection](https://www.kaggle.com/competitions/facial-keypoints-detection/overview) from Kaggle. The image is captured by the webcam, then pretrained YOLO net is used to retrieve all the regions with faces. I train a network on the aforementioned Kaggle dataset, and then predict the location of facial keypoints on these regions.
+
+A demonstration of the pipeline can be found in [examples/applicationWorkflow.jl](examples/applicationWorkflow.jl), a working proof of concept is in [examples/webcam.jl](examples/webcam.jl). The `gif` image below shows the output of the `webcam` script.
+
+![webcam gif](readme_files/webcam.gif)
+
 ### TODOs
 
 - webcam connection [x]
@@ -12,7 +18,8 @@
     - yolo change of resolution test - 4 different images, bounding boxes should be at the right place after the transformation [ ]
     - `channels_to_rgb`
 - automatic download of YOLO model [ ]
-- faster start time using precompilation [ ]
+- faster start time using precompilation [-]
+    - won't do as I do not want to spend time on sysimages
 - ResNet for traits detection [ ]
 - docstrings [ ]
 
