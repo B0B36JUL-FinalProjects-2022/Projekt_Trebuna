@@ -1,4 +1,7 @@
-function plot_keypoints(dataset::DataFrame, index; suffix="")
+using .DataFrames
+using .Plots
+
+function plot_keypoints(dataset::DataFrame, index::Int32; suffix::String="")
     eye_group = [
         "eye_inner_corner",
         "eye_center",
@@ -47,7 +50,7 @@ end
 """
 Show the image and important keypoints.
 """
-function show_image(dataset::DataFrame, index::Integer; goldDataset=nothing)
+function show_image(dataset::DataFrame, index::Integer; goldDataset::DataFrame=nothing)
     image = dataset[index, :Image]
     plt = plot(image)
     plot_keypoints(dataset, index)
@@ -57,7 +60,12 @@ function show_image(dataset::DataFrame, index::Integer; goldDataset=nothing)
     gui(plt)
 end
 
-function show_image_augmented(datasets, names, index::Integer)
+function show_image(image::AbstractArray)
+    plt = plot(image)
+    gui(plt)
+end
+
+function show_image_augmented(datasets::AbstractArray{DataFrame}, names::AbstractArray{String}, index::Integer)
     plots = []
     for (dataset, name) in zip(datasets, names)
         plt = show_image(dataset, index)
@@ -65,4 +73,24 @@ function show_image_augmented(datasets, names, index::Integer)
         push!(plots, plt)
     end
     plot(plots..., legend=false)
+end
+
+function plot_losses(train_losses_steps, valid_losses, ylims_param=(1e-3, 1e-2))
+    tr_len = length(train_losses_steps)
+    val_len = length(valid_losses)
+    epoch_steps = floor(Int, tr_len / val_len)
+
+    train_losses = train_losses_steps
+    valid_losses = repeat(valid_losses, inner=epoch_steps)
+    plot(train_losses, alpha=0.1, color=:dodgerblue3, label="Train Loss")
+    plot!(valid_losses, alpha=0.1, color=:rosybrown, label="Validation Loss")
+    plot!(rollmean(train_losses, epoch_steps * 3), color=:blue, label="Train Loss (smoothed)")
+    plot!(rollmean(valid_losses, epoch_steps * 3), color=:red, label="Validation Loss (smoothed)")
+    xlabel!("Train Steps")
+    ylabel!("Loss")
+    ylims!(ylims_param)
+end
+
+function plot_errors(sortedDataframe::DataFrame)
+    plot(sortedDataframe[!, :Error], title="Errors on Individual Samples", xlabel="Sample ID", ylabel="Error")
 end

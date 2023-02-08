@@ -1,3 +1,6 @@
+using GeometryBasics
+using .DataFrames
+
 # https://www.dynamsoft.com/blog/insights/image-processing/image-processing-101-color-space-conversion/
 function to_grayscale(img)
     reshape(
@@ -7,33 +10,36 @@ function to_grayscale(img)
 end
 
 function predict_from_bb(net::NetHolder, img, boundingboxes::AbstractArray{GeometryBasics.Polygon})
+    @info size(img)
     img = to_grayscale(img)
-    model = Chain([Flux.AdaptiveMeanPool((96, 96))])
+    # model = Chain([Flux.AdaptiveMeanPool((96, 96))])
 
-    for bb in boundingboxes[2:end]
-        points_x = []
-        points_y = []
-        for line in bb.exterior.points
-            push!(points_x, line.points[1][1])
-            push!(points_y, line.points[1][2])
-        end
-        min_x = Int32(minimum(points_x))
-        max_x = Int32(maximum(points_x))
-        min_y = Int32(minimum(points_y))
-        max_y = Int32(maximum(points_y))
+    # for bb in boundingboxes[2:end]
+    #     points_x = []
+    #     points_y = []
+    #     for line in bb.exterior.points
+    #         push!(points_x, line.points[1][1])
+    #         push!(points_y, line.points[1][2])
+    #     end
+    #     min_x = Int32(minimum(points_x))
+    #     max_x = Int32(maximum(points_x))
+    #     min_y = Int32(minimum(points_y))
+    #     max_y = Int32(maximum(points_y))
 
-        img2 = img[min_x:max_x, min_y:max_y, :, :]
-        @show size(img2)
-        if size(img2, 1) >= 96 && size(img2, 2) >= 96
-            img2 = model(img2)
-        elseif size(img2, 1) > 96
-            #NNLib pad_constant
-            @info "Not yet implemented!"
-        end
+    #     img2 = img[min_x:max_x, min_y:max_y, :, :]
+    #     @show size(img2)
+    #     if size(img2, 1) >= 96 && size(img2, 2) >= 96
+    #         img2 = model(img2)
+    #     elseif size(img2, 1) < 96
+    #         #NNLib pad_constant
+    #         @info "Not yet implemented!"
+    #     elseif size(img1, 1) < 96
+    #         @info "Not yet implemented!"
+    #     end
 
         
-        @show size(img2)
-    end
+    #     @show size(img2)
+    # end
 
 end
 

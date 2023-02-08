@@ -1,10 +1,10 @@
-using ObjectDetector
+using .ObjectDetector
 using GeometryBasics
 
-function load_yolo_model()
+function load_yolo_model(;model_dir::String="data")
     model = YOLO.yolo(
-        "data/face-yolov3-tiny_41000.cfg",
-        "data/face-yolov3-tiny_41000.weights"
+        joinpath(model_dir,"face-yolov3-tiny_41000.cfg"),
+        joinpath(model_dir, "face-yolov3-tiny_41000.weights")
     )
 end
 
@@ -54,6 +54,15 @@ function create_bounding_box(results, padding, s::DrawStruct)
         )
     end
     boxes
+end
+
+function get_prepared_image(image, model)
+    im, pad = prepareImage(image, model)
+    im = im |> cpu
+
+
+    im_rgb_unwinded = [RGB(im[i, j, :]...) for i in range(1, size(im, 1)) for j in range(1, size(im, 2))]
+    im_rgb = reshape(im_rgb_unwinded, size(im, 1), size(im, 2))
 end
 
 function predict_bounding_box(image, model, s::DrawStruct;

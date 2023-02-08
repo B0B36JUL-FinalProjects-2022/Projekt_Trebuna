@@ -7,7 +7,7 @@ augmentedDataframe = KeypointsDetection.augmentDataframe(trainDataframe);
 
 model_path="examples/models/traits_model.bson"
 @info "Loading Trained Model $(model_path)"
-needed_columns=["left_eye_center_x", "left_eye_center_y", "right_eye_center_x", "right_eye_center_y", "nose_tip_x", "nose_tip_y", "mouth_center_bottom_lip_x", "mouth_center_bottom_lip_y"]
+needed_columns=KeypointsDetection.columns_basic_traits
 net = KeypointsDetection.define_net_lenet_dropout(;n_outputs=length(needed_columns), dropout_rate=0.2)
 KeypointsDetection.load_net(net, model_path)
 

@@ -1,7 +1,6 @@
 using Images
-using DataFrames
+using .DataFrames
 using CSV
-using Plots
 
 function string_to_matrix(str)
     reshape(
@@ -50,7 +49,7 @@ function droprows_wo_needed_columns(dataframe::DataFrame, needed_columns::Abstra
     end
 end
 
-function targets_from_dataframe(dataframe, needed_columns)
+function targets_from_dataframe(dataframe::DataFrame, needed_columns)
     needed_columns = filter(needed_columns) do col
         col != "Image"
     end

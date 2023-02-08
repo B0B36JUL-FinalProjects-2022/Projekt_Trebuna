@@ -5,7 +5,6 @@ using Flux
 using Flux: flatten, params
 using Flux.Data: DataLoader
 using Flux.Losses: mse
-using Plots
 using Random
 using RollingFunctions
 using Statistics
@@ -71,18 +70,4 @@ function load_net(net::NetHolder, filename::String)
     net.model = model
 end
 
-function plot_losses(train_losses_steps, valid_losses, ylims_param=(1e-3, 1e-2))
-    tr_len = length(train_losses_steps)
-    val_len = length(valid_losses)
-    epoch_steps = floor(Int, tr_len / val_len)
-
-    train_losses = train_losses_steps
-    valid_losses = repeat(valid_losses, inner=epoch_steps)
-    plot(train_losses, alpha=0.1, color=:dodgerblue3, label="Train Loss")
-    plot!(valid_losses, alpha=0.1, color=:rosybrown, label="Validation Loss")
-    plot!(rollmean(train_losses, epoch_steps * 3), color=:blue, label="Train Loss (smoothed)")
-    plot!(rollmean(valid_losses, epoch_steps * 3), color=:red, label="Validation Loss (smoothed)")
-    xlabel!("Train Steps")
-    ylabel!("Loss")
-    ylims!(ylims_param)
-end
+columns_basic_traits=["left_eye_center_x", "left_eye_center_y", "right_eye_center_x", "right_eye_center_y", "nose_tip_x", "nose_tip_y", "mouth_center_bottom_lip_x", "mouth_center_bottom_lip_y"]

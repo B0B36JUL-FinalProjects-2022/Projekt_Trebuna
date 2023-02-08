@@ -19,7 +19,3 @@ function sort_by_error(predictedDataframe::DataFrame, goldDataframe::DataFrame)
     sort!(df, [:Error])
     df
 end
-
-function plot_errors(sortedDataframe::DataFrame)
-    plot(sortedDataframe[!, :Error], title="Errors on Individual Samples", xlabel="Sample ID", ylabel="Error")
-end
