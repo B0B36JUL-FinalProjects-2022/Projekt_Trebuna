@@ -21,10 +21,10 @@ function crop_out_face(img_orig, boundingbox::GeometryBasics.Polygon)
         push!(points_x, line.points[1][1])
         push!(points_y, line.points[1][2])
     end
-    min_x = Int32(minimum(points_x))
-    max_x = Int32(maximum(points_x))
-    min_y = Int32(minimum(points_y))
-    max_y = Int32(maximum(points_y))
+    min_x = max(Int32(minimum(points_x)), 0)
+    max_x = min(Int32(maximum(points_x)), size(img_orig, 1))
+    min_y = max(Int32(minimum(points_y)), 0)
+    max_y = min(Int32(maximum(points_y)), size(img_orig, 2))
 
     img = img_orig[min_x:max_x, min_y:max_y]
     old_x = min_x
@@ -52,13 +52,13 @@ function crop_out_face(img_orig, boundingbox::GeometryBasics.Polygon)
             img = imresize(img, new_width, new_height)
         end
     end
-    if size(img, 1) < 96 && size(img,2) < 96
+    if size(img, 1) <= 96 && size(img,2) <= 96
         p1 = 96 - size(img, 1)
         p2 = 96 - size(img, 2)
         p11 = Int(floor(p1 / 2))
         p12 = Int(p1 - p11)
         p21 = Int(floor(p2 / 2))
-        p22 = Int(p2 - p22)
+        p22 = Int(p2 - p21)
         img = NNlib.pad_constant(img, (p11, p12, p21, p22), 0, dims=(1, 2))
     else
         if size(img, 1) < 96
@@ -86,40 +86,6 @@ function preds_to_full(preds, old_x, old_y, ratio, p11, p21)
         push!(new_preds, (x / ratio + old_x, y / ratio + old_y))
     end
     new_preds
-end
-
-function predict_from_bb(net::NetHolder, img, boundingboxes::AbstractArray{GeometryBasics.Polygon})
-    @info size(img)
-    img = to_grayscale(img)
-    # model = Chain([Flux.AdaptiveMeanPool((96, 96))])
-
-    # for bb in boundingboxes[2:end]
-    #     points_x = []
-    #     points_y = []
-    #     for line in bb.exterior.points
-    #         push!(points_x, line.points[1][1])
-    #         push!(points_y, line.points[1][2])
-    #     end
-    #     min_x = Int32(minimum(points_x))
-    #     max_x = Int32(maximum(points_x))
-    #     min_y = Int32(minimum(points_y))
-    #     max_y = Int32(maximum(points_y))
-
-    #     img2 = img[min_x:max_x, min_y:max_y, :, :]
-    #     @show size(img2)
-    #     if size(img2, 1) >= 96 && size(img2, 2) >= 96
-    #         img2 = model(img2)
-    #     elseif size(img2, 1) < 96
-    #         #NNLib pad_constant
-    #         @info "Not yet implemented!"
-    #     elseif size(img1, 1) < 96
-    #         @info "Not yet implemented!"
-    #     end
-
-        
-    #     @show size(img2)
-    # end
-
 end
 
 function predict(net::NetHolder, X::AbstractArray{Float32, 2}; withgpu=false)
