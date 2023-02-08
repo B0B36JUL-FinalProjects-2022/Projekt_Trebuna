@@ -27,15 +27,29 @@ function crop_out_face(img_orig, boundingbox::GeometryBasics.Polygon)
     max_y = Int32(maximum(points_y))
 
     img = img_orig[min_x:max_x, min_y:max_y]
+    old_x = min_x
+    old_y = min_y
+    old_width = max_x - min_x
+    old_height = max_y - min_y
+
+    # if any side of the bounding-box is bigger than 96 pixels
+    # then we rescale the image so that the biggest side is
+    # exactly 96 pixels big, while keeping the aspect ratio
+    new_width, new_height = old_width, old_height
+    ratio = 1
     if size(img, 1) >= size(img, 2)
         if size(img, 1) > 96
+            new_width=96
             ratio = size(img, 2) / size(img, 1)
-            img = imresize(img, 96, floor(Int64, 96 * ratio))
+            new_height=floor(Int64, 96 * ratio)
+            img = imresize(img, new_width, new_height)
         end
     elseif size(img, 1) < size(img, 2)
         if size(img, 2) > 96
             ratio = size(img, 1) / size(img, 2)
-            img = imresize(img, floor(Int64, 96 * ratio), 96)
+            new_height=96
+            new_width=floor(Int64, 96 * ratio)
+            img = imresize(img, new_width, new_height)
         end
     end
     if size(img, 1) < 96 && size(img,2) < 96
@@ -49,17 +63,29 @@ function crop_out_face(img_orig, boundingbox::GeometryBasics.Polygon)
     else
         if size(img, 1) < 96
             p1 = 96 - size(img, 1)
+            p22, p21 = 0, 0
             p11 = Int(floor(p1 / 2))
             p12 = Int(p1 - p11)
             img = NNlib.pad_constant(img, (p11, p12, 0, 0), 0, dims=(1, 2))
         elseif size(img, 2) < 96
             p2 = 96 - size(img, 2)
+            p11, p12 = 0, 0
             p21 = Int(floor(p2 / 2))
             p22 = Int(p2 - p21)
             img = NNlib.pad_constant(img, (0, 0, p21, p22), 0, dims=(1, 2))
         end
     end
-    convert(Matrix{Float32}, img)
+    convert(Matrix{Float32}, img), old_x, old_y, ratio, p11, p21
+end
+
+function preds_to_full(preds, old_x, old_y, ratio, p11, p21)
+    new_preds = []
+    for p in preds
+        x = p[1]# + p11
+        y = p[2]# + p21
+        push!(new_preds, (old_x + x / ratio, old_y + y / ratio))
+    end
+    new_preds
 end
 
 function predict_from_bb(net::NetHolder, img, boundingboxes::AbstractArray{GeometryBasics.Polygon})
