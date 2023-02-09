@@ -1,6 +1,32 @@
 # KeypointsDetection
 
-The main aim of this project is to try to play with `VideoIO`, `GLMakie`, and `ObjectDetector`. I chose the dataset for [Facial Keypoints Detection](https://www.kaggle.com/competitions/facial-keypoints-detection/overview) from Kaggle. The image is captured by the webcam, then pretrained YOLO net is used to retrieve all the regions with faces. I train a network on the aforementioned Kaggle dataset, and then predict the location of facial keypoints on these regions.
+The project is composed of two parts:
+1. Training and Evaluation of the model for [Facial Keypoints Detection](https://www.kaggle.com/competitions/facial-keypoints-detection/overview) from Kaggle.
+2. Proof of concept implementation of a pipeline for detecting facial keypoints on image-stream captured by a pc webcam.
+
+## [Facial Keypoints Detection](https://www.kaggle.com/competitions/facial-keypoints-detection/overview)
+
+The package exports several utility functions for training of the models on the challenge.
+
+### Data Loading
+- `load_train_dataframe`, `augment_dataframe`, `create_train_dataset`
+
+### Training and Evaluation
+- model definitions: `define_net_simple_feedforward`, `define_net_lenet`, `define_net_lenet_dropout`
+- training: `train_net!`, `train_gpu_net!`, `show_losses`
+- evaluation: `predict_to_dataframe`, `show_image_and_keypoints`, `show_image_with_gold`, `show_errors`
+
+### Results
+
+I was able to replicate the performances reported by the official tutorial from kaggle ([link](https://danielnouri.org/notes/2014/12/17/using-convolutional-neural-nets-to-detect-facial-keypoints-tutorial/)). The models can be trained by scripts [`examples/trainTraitsDetector.jl`](examples/trainTraitsDetector.jl) for the basic traits (e.g. detect just eyes, nose, and the middle of mouth).
+
+#### Example outputs
+- basic traits:
+![image_basic_traits](readme_files/basic_traits.jpg)
+
+## Proof of Concept WebCam Pipeline
+
+The main aim of this part is to try to play with `VideoIO`, `GLMakie`, and `ObjectDetector`. The pipeline 
 
 A demonstration of the pipeline can be found in [examples/applicationWorkflow.jl](examples/applicationWorkflow.jl), a working proof of concept is in [examples/webcam.jl](examples/webcam.jl). The `gif` image below shows the output of the `webcam` script.
 
