@@ -4,11 +4,11 @@ using DataFrames
 using Plots
 
 @info "Loading Train Dataframe"
-trainDataframe = KeypointsDetection.load_train_dataframe();
+trainDataframe = load_train_dataframe();
 augmentedDataframe = KeypointsDetection.augmentDataframe(trainDataframe);
 
 @info "Creating Dataset"
-needed_columns=["left_eye_center_x", "left_eye_center_y", "right_eye_center_x", "right_eye_center_y", "nose_tip_x", "nose_tip_y", "mouth_center_bottom_lip_x", "mouth_center_bottom_lip_y"]
+needed_columns=columns_basic_traits
 X, y = KeypointsDetection.create_train_dataset(augmentedDataframe; needed_columns);
 
 @info "Starting Training"

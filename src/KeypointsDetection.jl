@@ -12,7 +12,7 @@ function __init__()
         @require DataFrames="a93c6f00-e57d-5684-b7b6-d8193f3e46c0" include("PlotUtils.jl")
     end
     @require DataFrames="a93c6f00-e57d-5684-b7b6-d8193f3e46c0" include("Augmentation.jl")
-    @require DataFrames="a93c6f00-e57d-5684-b7b6-d8193f3e46c0" include("LoadDataset.jl")
+    @require DataFrames="a93c6f00-e57d-5684-b7b6-d8193f3e46c0" include("facial_keypoints/LoadDataset.jl")
     @require DataFrames="a93c6f00-e57d-5684-b7b6-d8193f3e46c0" include("ValidateUtils.jl")
     @require DataFrames="a93c6f00-e57d-5684-b7b6-d8193f3e46c0" include("DataFramePredictUtils.jl")
     @require GLMakie="e9467ef8-e4e7-5192-8a1a-b1aee30e663a" begin

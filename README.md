@@ -17,7 +17,7 @@ A demonstration of the pipeline can be found in [examples/applicationWorkflow.jl
 - tests [ ]
     - yolo change of resolution test - 4 different images, bounding boxes should be at the right place after the transformation [ ]
     - `channels_to_rgb`
-- automatic download of YOLO model [ ]
+- automatic download of YOLO model [-]
 - faster start time using precompilation [-]
     - won't do as I do not want to spend time on sysimages
 - ResNet for traits detection [ ]

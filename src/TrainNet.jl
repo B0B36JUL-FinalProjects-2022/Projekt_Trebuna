@@ -9,6 +9,8 @@ using Random
 using RollingFunctions
 using Statistics
 
+export columns_basic_traits
+
 mutable struct NetHolder
     model
 end
