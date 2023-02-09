@@ -6,22 +6,22 @@ using FileIO
 using ObjectDetector
 
 function show_image(img::AbstractArray)
-    plt = plot(img)
+    plt = Plots.plot(img)
     gui(plt)
 end
 
 function show_image_with_bbox(img::AbstractArray, bbox::AbstractArray)
-    plt = plot(img)
-    plot!(bbox, label="Bounding box")
+    plt = Plots.plot(img)
+    Plots.plot!(bbox, label="Bounding box")
     gui(plt)
 end
 
 function show_gpu_image_scatter(img, sc)
     im_show = img |> cpu
     im_show = channels_to_rgb(im_show)
-    plt = plot(im_show)
+    plt = Plots.plot(im_show)
     for (i,s) in enumerate(sc)
-        scatter!([s], label="$i")
+        Plots.scatter!([s], label="$i")
     end
     gui(plt)
 end
