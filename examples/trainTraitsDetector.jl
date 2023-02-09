@@ -5,7 +5,7 @@ using Plots
 
 @info "Loading Train Dataframe"
 trainDataframe = load_train_dataframe();
-augmentedDataframe = KeypointsDetection.augmentDataframe(trainDataframe);
+augmentedDataframe = augment_dataframe(trainDataframe);
 
 @info "Creating Dataset"
 needed_columns=columns_basic_traits

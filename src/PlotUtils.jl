@@ -47,13 +47,17 @@ function plot_keypoints(dataset::DataFrame, index::Integer; suffix::String="")
     end
 end
 
+function plot_image(dataset::DataFrame, index::Integer)
+    plt = plot(dataset[index, :Image])
+    plot_keypoints(dataset, index)
+    plt
+end
+
 """
 Show the image and important keypoints.
 """
 function show_image(dataset::DataFrame, index::Integer)
-    image = dataset[index, :Image]
-    plt = plot(image)
-    plot_keypoints(dataset, index)
+    plt = plot_image(dataset, index)
     gui(plt)
 end
 
@@ -75,11 +79,12 @@ end
 function show_image_augmented(datasets::AbstractArray{DataFrame}, names::AbstractArray{String}, index::Integer)
     plots = []
     for (dataset, name) in zip(datasets, names)
-        plt = show_image(dataset, index)
+        plt = plot_image(dataset, index)
         title!(plt, name)
         push!(plots, plt)
     end
-    plot(plots..., legend=false)
+    plt = plot(plots..., legend=false)
+    gui(plt)
 end
 
 function plot_losses(train_losses_steps, valid_losses, ylims_param=(1e-3, 1e-2))

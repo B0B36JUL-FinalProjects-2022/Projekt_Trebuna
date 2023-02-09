@@ -4,8 +4,8 @@ using DataFrames
 using Plots
 
 @info "Loading Dataset"
-trainDataframe = KeypointsDetection.load_train_dataframe();
-augmentedDataframe = KeypointsDetection.augmentDataframe(trainDataframe);
+trainDataframe = load_train_dataframe();
+augmentedDataframe = augment_dataframe(trainDataframe);
 
 model_path="examples/models/traits_model.bson"
 @info "Loading Trained Model $(model_path)"
