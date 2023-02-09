@@ -139,7 +139,7 @@ function rotation(dataframe::DataFrame, radians::Float64)
     
     for c in range(1, nrow(dataframe))
         # each image is rotated a bit differently
-        noisy_radians = (Random.rand() - 0.5) * 0.2 + radians
+        noisy_radians = (Random.rand() - 0.5) * 0.4 + radians
         matrix = RotMatrix(noisy_radians)
 
         # rotate image
@@ -173,8 +173,7 @@ Creates new dataframe by horizontally flipping images, rotation and negative rot
 by pi/5 radians. Hence the returned dataframe is 4-times larger than the original one.
 """
 function augment_dataframe(dataframe::DataFrame)
-    hf = horizontal_flip(dataframe)
     r = rotation(dataframe, π / 5)
     nr = rotation(dataframe, - π / 5)
-    vcat(dataframe, hf, r, nr)
+    vcat(r, nr, dataframe)
 end

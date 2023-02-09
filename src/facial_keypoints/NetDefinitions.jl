@@ -7,7 +7,7 @@ using Flux.Data: DataLoader
 using Flux.Losses: mse
 using Random
 
-export columns_basic_traits, define_net_simple_feedforward, define_net_lenet, define_net_lenet_dropout, load_net, save_net
+export columns_basic_traits, define_net_simple_feedforward, define_net_lenet, define_net_lenet_dropout, define_net_lenet_deeper_dropout, load_net, save_net
 
 """
 Simple wrapper around the `Flux.Chain` `model`
@@ -72,6 +72,30 @@ function define_net_lenet_dropout(;dropout_rate=0.5, n_outputs=30)
         Dropout(dropout_rate),
         Dense(120, 84, relu),
         Dense(84, n_outputs)
+    )
+    NetHolder(net)
+end
+
+"""
+Deeper feedforward convolution network
+"""
+function define_net_lenet_deeper_dropout(; dropout_rate=0.2, n_outputs=30)
+    net = Chain(
+        Conv((5,5), 1=>6, relu, pad=SamePad()),
+        MeanPool((2,2)),
+        Dropout(dropout_rate),
+        Conv((5,5), 6=>16, relu),
+        MeanPool((2,2)),
+        Dropout(dropout_rate),
+        Conv((5,5), 16=>32, relu),
+        MeanPool((2, 2)),
+        Dropout(dropout_rate),
+        Conv((5,5), 32=>64, relu),
+        MeanPool((2, 2)),
+        Flux.flatten,
+        Dense(256, 128, relu),
+        Dropout(dropout_rate),
+        Dense(128, n_outputs)
     )
     NetHolder(net)
 end

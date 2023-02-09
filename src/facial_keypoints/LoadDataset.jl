@@ -46,7 +46,7 @@ function create_predict_dataset(dataframe::DataFrame)
     )[:, :Image]
     X = reduce(hcat, X)'
     X = reshape(X, (size(X)[1], 96, 96, 1))
-    X = permutedims(X, (2, 3, 4, 1))
+    X = permutedims(X, (3, 2, 4, 1))
 end
 
 """

@@ -24,7 +24,7 @@ readline()
 sortedDataframe = sort_by_error(predictedDataframe, augmentedDataframe)
 
 @info "Worst prediction"
-show_image_with_gold(sortedDataframe, 28185; goldDataframe=augmentedDataframe)
+show_image_with_gold(sortedDataframe, 21147; goldDataframe=augmentedDataframe)
 readline()
 
 @info "Best prediction"

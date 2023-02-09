@@ -3,7 +3,7 @@ using .Plots
 using RollingFunctions
 using Statistics
 
-export show_image_augmented, show_image_and_keypoints, show_image_with_gold, show_errors, show_losses
+export show_image_augmented, show_image_and_keypoints, show_image_with_gold, show_errors, show_losses, show_gpu_image_scatter, show_gpu_image
 
 """
 Create a scatter plot of keypoints in the row `dataframe[index, :]`. Creates lines
@@ -98,6 +98,7 @@ end
 function show_image(image::AbstractArray)
     plt = plot(image)
     gui(plt)
+    plt
 end
 
 """Plot the same row of different dataframes in a grid, together with associated keypoints"""
@@ -114,7 +115,8 @@ end
 
 """
 Display the progress of the training,
-`train_losses_steps` and `valid_losses` are the outputs of `train_net` or `train_gpu_net`
+`train_losses_steps` and `valid_losses` are the outputs of `train_net` or `train_gpu_net`,
+return the resulting plot.
 """
 function show_losses(train_losses_steps, valid_losses, ylims_param=(1e-3, 1e-2))
     tr_len = length(train_losses_steps)
@@ -136,6 +138,7 @@ function show_losses(train_losses_steps, valid_losses, ylims_param=(1e-3, 1e-2))
     ylabel!("Loss")
     ylims!(ylims_param)
     gui(plt)
+    plt
 end
 
 """
@@ -145,4 +148,28 @@ Show the Mean Squared Error between predicted labels and gold labels.
 function show_errors(sortedDataframe::DataFrame)
     plt = plot(sortedDataframe[!, :Error], title="Errors on Individual Samples", xlabel="Sample ID", ylabel="Mean Squared Error")
     gui(plt)
+end
+
+"""
+Show scatter plot on the image defined as a matrix of floats
+"""
+function show_gpu_image_scatter(img, sc)
+    im_show = img |> cpu
+    im_show = channels_to_rgb(im_show)
+    plt = plot(im_show)
+    for (i,s) in enumerate(sc)
+        scatter!([s], label="$i")
+    end
+    gui(plt)
+    plt
+end
+
+"""
+Show image stored as a tensor of floats
+"""
+function show_gpu_image(im)
+    im_show = im |> cpu
+    im_show = channels_to_rgb(im_show)
+    plt = show_image(im_show)
+    plt
 end

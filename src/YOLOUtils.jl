@@ -2,7 +2,7 @@ using .ObjectDetector
 using GeometryBasics
 using Images
 
-export load_yolo_model, predict_bounding_box, yolo_predict, res_to_bounding_box, get_prepared_image, prepare_yolo_structs, channels_to_rgb
+export load_yolo_model, predict_bounding_box, yolo_predict, res_to_bounding_box, get_prepared_image, prepare_yolo_structs
 
 """
 Load pretrained weights and configuration from `joinpath(model_dir, cfg_name)`
@@ -79,14 +79,6 @@ function res_to_bounding_box(results::Vector{Float32}, h::Float32, w::Float32, p
     p3 = (round(Int, bbox[3] * w),      round(Int, bbox[4] * h))
     p4 = (round(Int, bbox[1] * w) + 1,  round(Int, bbox[4] * h))
     return [p1, p2, p3, p4, p1]
-end
-
-"""
-Transform `(w, h, c)` shaped array of floats into `(w, h)` array of `RGB`
-"""
-function channels_to_rgb(im)
-    im_rgb_unwinded = [RGB(im[i, j, :]...) for j in range(1, size(im, 2)) for i in range(1, size(im, 1))]
-    im_rgb = reshape(im_rgb_unwinded, size(im, 1), size(im, 2))'
 end
 
 function get_prepared_image(image, model)
