@@ -3,7 +3,7 @@ using CoordinateTransformations
 using Rotations
 using .DataFrames
 
-export horizontal_flip, rotation
+export horizontal_flip, rotation, augment_dataframe
 
 """
 Traverses the `dataframe` reverses each member of column

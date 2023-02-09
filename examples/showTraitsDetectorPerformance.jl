@@ -15,26 +15,28 @@ KeypointsDetection.load_net(net, model_path)
 
 # show some prediction
 @info "Predicting"
-predictedDataframe = KeypointsDetection.predict_to_dataframe(net, augmentedDataframe; needed_columns);
-KeypointsDetection.show_image(predictedDataframe, 1)
+predictedDataframe = predict_to_dataframe(net, augmentedDataframe; needed_columns);
+@info "Prediction on random photo from the dataset"
+show_image_and_keypoints(predictedDataframe, 1)
 readline()
 
 # show the best, the worst and the barchart with mean error
 sortedDataframe = KeypointsDetection.sort_by_error(predictedDataframe, augmentedDataframe)
 
-# the worst
-KeypointsDetection.show_image_with_gold(sortedDataframe, 28185; goldDataset=augmentedDataframe)
+@info "Worst prediction"
+show_image_with_gold(sortedDataframe, 28185; goldDataframe=augmentedDataframe)
 readline()
 
-# the best
-KeypointsDetection.show_image_with_gold(sortedDataframe, 100; goldDataset=augmentedDataframe)
+@info "Best prediction"
+show_image_with_gold(sortedDataframe, 100; goldDataframe=augmentedDataframe)
 readline()
 
-# the average
-KeypointsDetection.show_image_with_gold(sortedDataframe, 10000; goldDataset=augmentedDataframe)
+@info "Average prediction"
+show_image_with_gold(sortedDataframe, 10000; goldDataframe=augmentedDataframe)
 readline()
 
-KeypointsDetection.plot_errors(sortedDataframe)
+@info "Errors"
+show_errors(sortedDataframe)
 readline()
 
 end

@@ -14,7 +14,7 @@ negRotated = rotation(trainDataframe, -pi * 1 / 5)
 rotated = rotation(trainDataframe, pi * 1 / 5)
 
 @info "Display"
-KeypointsDetection.show_image_augmented(
+show_image_augmented(
     [
         trainDataframe,
         horizontallyFlipped,
