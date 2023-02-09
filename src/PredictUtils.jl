@@ -86,9 +86,9 @@ function crop_out_face(img_orig, boundingbox::GeometryBasics.Polygon)
         push!(points_x, line.points[1][1])
         push!(points_y, line.points[1][2])
     end
-    min_x = max(Int32(minimum(points_x)), 0)
+    min_x = max(Int32(minimum(points_x)), 1)
     max_x = min(Int32(maximum(points_x)), size(img_orig, 1))
-    min_y = max(Int32(minimum(points_y)), 0)
+    min_y = max(Int32(minimum(points_y)), 1)
     max_y = min(Int32(maximum(points_y)), size(img_orig, 2))
 
     img = img_orig[min_x:max_x, min_y:max_y]
