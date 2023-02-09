@@ -18,7 +18,7 @@ Args:
 - `net::NetHolder`
 - `X`: vector of input data
 - `y`: vector of gold labels
-- `patience`: early stopping patience
+- `patience`: early stopping patience, when set to -1, the early stopping is disabled
 - `withgpu`: flag whether to use gpu
 - `filename`: if left empty, then the trained net is not saved, otherwise it is saved to the location
 specified by the `filename` 
@@ -97,6 +97,9 @@ The training stops when during the last `early_stopping.patience` epochs the
 validation loss did not improve.
 """
 function should_stop(valid_loss, current_epoch, early_stopping::EarlyStopping)
+    if early_stopping.patience == -1
+        return false
+    end
     if valid_loss <= early_stopping.best_valid
         early_stopping.best_valid = valid_loss
         early_stopping.best_epoch = current_epoch

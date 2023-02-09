@@ -7,15 +7,15 @@ using Plots
 trainDataframe = load_train_dataframe();
 augmentedDataframe = augment_dataframe(trainDataframe);
 
-model_path="examples/models/traits_model.bson"
+model_path="examples/models/traits_model_full.bson"
 @info "Loading Trained Model $(model_path)"
-needed_columns=columns_basic_traits
-net = define_net_lenet_dropout(;n_outputs=length(needed_columns), dropout_rate=0.2)
+#needed_columns=columns_basic_traits
+net = define_net_lenet_dropout(;dropout_rate=0.2) #n_outputs=length(needed_columns))
 load_net(net, model_path)
 
 # show some prediction
 @info "Predicting"
-predictedDataframe = predict_to_dataframe(net, augmentedDataframe; needed_columns);
+predictedDataframe = predict_to_dataframe(net, augmentedDataframe)#; needed_columns);
 @info "Prediction on random photo from the dataset"
 show_image_and_keypoints(predictedDataframe, 1)
 readline()
