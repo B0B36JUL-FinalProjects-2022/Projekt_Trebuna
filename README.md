@@ -4,6 +4,12 @@ The project is composed of two parts:
 1. Training and Evaluation of the model for [Facial Keypoints Detection](https://www.kaggle.com/competitions/facial-keypoints-detection/overview) from Kaggle.
 2. Proof of concept implementation of a pipeline for detecting facial keypoints on image-stream captured by a pc webcam.
 
+# Installation
+
+```julia
+(@v1.8) pkg> add https://github.com/B0B36JUL-FinalProjects-2022/Projekt_Trebuna
+```
+
 ## [Facial Keypoints Detection](https://www.kaggle.com/competitions/facial-keypoints-detection/overview)
 
 The package exports several utility functions for training of the models on the challenge.
