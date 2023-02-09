@@ -1017,7 +1017,7 @@ uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 version = "0.6.5"
 
 [[deps.KeypointsDetection]]
-deps = ["BSON", "CSV", "CUDA", "CoordinateTransformations", "FileIO", "Flux", "GeometryBasics", "ImageIO", "ImageShow", "ImageTransformations", "ImageView", "Images", "Makie", "NNlib", "NNlibCUDA", "Random", "Requires", "RollingFunctions", "Rotations", "Statistics"]
+deps = ["BSON", "CSV", "CUDA", "CoordinateTransformations", "FileIO", "Flux", "GeometryBasics", "ImageIO", "ImageShow", "ImageTransformations", "ImageView", "Images", "NNlib", "NNlibCUDA", "Random", "Requires", "RollingFunctions", "Rotations", "Statistics"]
 path = ".."
 uuid = "133bbfb0-fa27-4137-941e-e0e85764464b"
 version = "0.1.0"
