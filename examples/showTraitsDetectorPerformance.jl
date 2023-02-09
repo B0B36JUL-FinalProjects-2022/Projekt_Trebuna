@@ -9,9 +9,9 @@ augmentedDataframe = augment_dataframe(trainDataframe);
 
 model_path="examples/models/traits_model.bson"
 @info "Loading Trained Model $(model_path)"
-needed_columns=KeypointsDetection.columns_basic_traits
-net = KeypointsDetection.define_net_lenet_dropout(;n_outputs=length(needed_columns), dropout_rate=0.2)
-KeypointsDetection.load_net(net, model_path)
+needed_columns=columns_basic_traits
+net = define_net_lenet_dropout(;n_outputs=length(needed_columns), dropout_rate=0.2)
+load_net(net, model_path)
 
 # show some prediction
 @info "Predicting"
@@ -21,7 +21,7 @@ show_image_and_keypoints(predictedDataframe, 1)
 readline()
 
 # show the best, the worst and the barchart with mean error
-sortedDataframe = KeypointsDetection.sort_by_error(predictedDataframe, augmentedDataframe)
+sortedDataframe = sort_by_error(predictedDataframe, augmentedDataframe)
 
 @info "Worst prediction"
 show_image_with_gold(sortedDataframe, 28185; goldDataframe=augmentedDataframe)

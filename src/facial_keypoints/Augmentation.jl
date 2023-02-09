@@ -1,6 +1,7 @@
 using ImageTransformations
 using CoordinateTransformations
 using Rotations
+using Random
 using .DataFrames
 
 export horizontal_flip, rotation, augment_dataframe

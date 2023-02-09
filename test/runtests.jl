@@ -46,3 +46,24 @@ end
         @test newDataframe[:, :B] == dataframe[:, :B]
     end
 end
+
+@testset "TransformPredictions" begin
+    preds = [
+        (65.52859, 40.049026),
+        (29.3091, 36.508976),
+        (44.74062, 61.655544),
+        (43.800518, 76.93857),
+    ]
+
+    new_preds = [
+        (358.4629751046499, 116.17168315251669),
+        (293.19243917862576, 109.79221713542938),
+        (321.00132501125336, 155.108428756396),
+        (319.30718354384106, 182.6497112909953),
+    ]
+
+    old_x, old_y, r, p11, p21 = 262, 44, 0.5549132947976878, 12, 0
+    res = [(p[1] - np[1]) + (p[2] - np[2]) for (p, np) in zip(preds_to_full(preds, old_x, old_y, r, p11, p21), new_preds)]
+    res = sum(res) / size(res, 1)
+    @test res ≈ 0 atol=1e-4
+end

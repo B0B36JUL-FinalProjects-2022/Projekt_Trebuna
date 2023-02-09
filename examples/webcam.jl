@@ -8,14 +8,14 @@ using ObjectDetector
 
 # load facial-keypoints net
 model_path="examples/models/traits_model.bson"
-needed_columns=KeypointsDetection.columns_basic_traits
-net = KeypointsDetection.define_net_lenet_dropout(n_outputs=length(needed_columns), dropout_rate=0.2)
-KeypointsDetection.load_net(net, model_path)
+needed_columns=columns_basic_traits
+net = define_net_lenet_dropout(n_outputs=length(needed_columns), dropout_rate=0.2)
+load_net(net, model_path)
 
 # load yolo net
-model = KeypointsDetection.load_yolo_model()
+model = load_yolo_model()
 
 # start webcam
-KeypointsDetection.play_webcam(model, net)
+play_webcam(model, net)
 
 end

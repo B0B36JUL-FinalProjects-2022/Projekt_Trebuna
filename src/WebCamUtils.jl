@@ -3,6 +3,12 @@ import .VideoIO
 import .ObjectDetector
 using GeometryBasics
 
+export play_webcam
+
+"""
+For some reason GLMakie has inverted y-axis, e.g. all the image
+count y == 0 in the top 
+"""
 function transform_predictions(w, h, boxes)
     new_boxes = GeometryBasics.Polygon[]
     for box in boxes
@@ -17,6 +23,10 @@ function transform_predictions(w, h, boxes)
     new_boxes
 end
 
+"""
+Predict the keypoints for each bounding box in `boxes`. Returns the keypoints without
+the information to which boundingbox they belong. (It is then easy to just call scatter to display all of them)
+"""
 function get_keypoints(net::NetHolder, img, boxes)
     points = [(1, 1)]
     h = size(img, 1)
@@ -24,7 +34,6 @@ function get_keypoints(net::NetHolder, img, boxes)
     for bbox in boxes[2:end]
         cropped_grayscale_im, old_x, old_y, r, p11, p21 = KeypointsDetection.crop_out_face(grayscale_im, bbox)
         preds = KeypointsDetection.predict(net, cropped_grayscale_im; withgpu=true)
-        preds = preds |> cpu
         preds = collect(zip(preds[1:2:end], 96 .- preds[2:2:end]))
         preds = KeypointsDetection.preds_to_full(preds, old_x, old_y, r, p11, p21)
         points = vcat(points, preds)
@@ -33,7 +42,15 @@ function get_keypoints(net::NetHolder, img, boxes)
     points
 end
 
-function play_webcam(model::YOLO.yolo, net::NetHolder)
+"""
+According to the output of the system web-camera, display the bounding box predicted by the
+`model::Yolo.yolo` and the facial keypoints predicted by the `net::NetHolder`.
+"""
+function play_webcam(
+    model::YOLO.yolo,
+    net::NetHolder;
+    net_preds_per_second::T=5
+) where T <: Integer
     cam = VideoIO.opencamera()
     try
         @info "First camera read"
@@ -80,8 +97,16 @@ function play_webcam(model::YOLO.yolo, net::NetHolder)
         display(scene)
         fps = VideoIO.framerate(cam)
         @info "Start of while loop"
+        last_pred = -1
         while GLMakie.isopen(scene)
             img = read(cam)
+            obs_img[] = GLMakie.rotr90(img)
+            if (last_pred == -1) || ((time() - last_pred) > (1 / net_preds_per_second))
+                last_pred = time()
+            else
+                sleep(1 / fps)
+                continue
+            end
             boxes = predict_bounding_box(img, model, yolo_struct)
             boxes = transform_predictions(yolo_struct.im_w, yolo_struct.im_h, boxes)
             points = get_keypoints(net, img, boxes)
@@ -89,7 +114,6 @@ function play_webcam(model::YOLO.yolo, net::NetHolder)
                 obs_keypoints[] = points
             end
             obs_plot[] = boxes
-            obs_img[] = GLMakie.rotr90(img)
             sleep(1 / fps)
         end
     finally

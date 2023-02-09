@@ -1,7 +1,9 @@
 using .DataFrames
 using .Plots
+using RollingFunctions
+using Statistics
 
-export show_image_augmented, show_image_and_keypoints, show_image_with_gold, show_errors
+export show_image_augmented, show_image_and_keypoints, show_image_with_gold, show_errors, show_losses
 
 """
 Create a scatter plot of keypoints in the row `dataframe[index, :]`. Creates lines
